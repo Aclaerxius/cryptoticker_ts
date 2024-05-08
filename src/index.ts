@@ -4,7 +4,7 @@ function greeter(person: string) {
   return "Hello, " + person;
 }
 
-const user = "Ali";
+const user = "Alex";
 const test = new Test();
 console.log(test.t, G);
 console.log(greeter(user));

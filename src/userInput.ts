@@ -4,18 +4,18 @@ interface SortArgs {
 }
 
 export interface UserInput {
-  sort: SortArgs[];
-  limit: number;
-  pairs: string[];
-  ignoreErrors: boolean;
-  live: number;
-  trend: number;
+  sortBy?: SortArgs[];
+  limit?: number;
+  pairs?: string[];
+  ignoreErrors?: boolean;
+  live?: number;
+  trend?: number;
 }
 
-export async function getUserInput(): Promise<UserInput> {
+export function getUserInput(): { sortBy: string; order: string } {
   const args = process.argv.slice(2);
   const userInput: UserInput = {
-    sort: [],
+    sortBy: [],
     limit: 0,
     pairs: [],
     ignoreErrors: false,
@@ -25,10 +25,10 @@ export async function getUserInput(): Promise<UserInput> {
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    if (arg === "--sort") {
+    if (arg === "--sortBy") {
       if (i + 2 < args.length) {
         const [column, order] = args[i + 1].split(",");
-        userInput.sort.push({ column, order });
+        userInput.sortBy?.push({ column, order });
         i += 1;
       }
     } else if (arg === "--limit") {
@@ -38,7 +38,7 @@ export async function getUserInput(): Promise<UserInput> {
       }
     } else if (arg === "--pairs") {
       while (i + 1 < args.length && !args[i + 1].startsWith("--")) {
-        userInput.pairs.push(args[i + 1]);
+        userInput.pairs?.push(args[i + 1]);
         i += 1;
       }
     } else if (arg === "--ignoreErrors") {
@@ -55,7 +55,7 @@ export async function getUserInput(): Promise<UserInput> {
       }
     } else if (arg === "--help") {
       console.log(
-        "Usage: node src/index.js --sort <column>,<order> --limit <number> --pairs <pair1,pair2,...> --ignoreErrors --live <number> --trend <number>"
+        "Usage: node src/index.js --sortBy <column>,<order> --limit <number> --pairs <pair1,pair2,...> --ignoreErrors --live <number> --trend <number>"
       );
       process.exit(0);
     } else {
@@ -64,7 +64,12 @@ export async function getUserInput(): Promise<UserInput> {
     }
   }
 
-  return userInput;
+  return {
+    sortBy:
+      userInput.sortBy?.map((arg) => `${arg.column},${arg.order}`).join(",") ||
+      "",
+    order: userInput.sortBy?.[0]?.order || "",
+  };
 }
 
 getUserInput();

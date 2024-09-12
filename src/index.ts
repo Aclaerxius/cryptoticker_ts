@@ -1,12 +1,14 @@
 "use strict";
-import { getUserInput } from "./userInput";
 import { requestManager } from "./requestManager";
+import { displayData } from "./displayManager";
+import Table from "tty-table";
 
 async function main() {
-  const userInput = await getUserInput();
   const binanceData = await requestManager();
-  console.log(userInput);
-  console.log(binanceData);
+  displayData(binanceData);
+  const table = Table;
+  //console.log(displayData);
+  console.table(table);
 }
 
-main();
+main().catch(console.error);

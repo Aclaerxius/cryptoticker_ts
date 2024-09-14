@@ -15,26 +15,26 @@ export interface UserInput {
 export function getUserInput(args: string[]): UserInput {
   const userInput: UserInput = { sortBy: [] };
 
-  for (let i = 0; i < args.length; i++) {
+  for (let i = 2; i < args.length; i++) {
     const arg = args[i];
 
     if (arg.startsWith("--sort")) {
-      const order = arg.split(" ")[1];
-      const [column, sortOrder] = order.split(",");
-      if (!column || !["asc", "desc"].includes(sortOrder)) {
-        if (!userInput.ignoreErrors) {
-          throw new Error(`Invalid sort order: ${sortOrder}`);
-        }
-      } else {
-        userInput.sortBy?.push({ column, order: sortOrder as "asc" | "desc" });
-      }
+      // const order = arg.split(" ")[1];
+      // const [column, sortOrder] = order.split(",");
+      // if (!column || !["asc", "desc"].includes(sortOrder)) {
+      //   if (!userInput.ignoreErrors) {
+      //     throw new Error(`Invalid sort order: ${sortOrder}`);
+      //   }
+      // } else {
+      //   userInput.sortBy?.push({ column, order: sortOrder as "asc" | "desc" });
+      // }
     } else if (arg === "--limit") {
       i++;
       const limit = parseInt(args[i], 10);
       if (isNaN(limit) || limit <= 0 || limit > 100) {
         if (!userInput.ignoreErrors) {
           throw new Error(
-            "Limit must be a positive integer between 1 and 100."
+            "Limit must be a positive integer between 1 and 100.",
           );
         }
       } else {
@@ -70,9 +70,9 @@ export function getUserInput(args: string[]): UserInput {
         userInput.trend = trendSamples || 2;
       }
     } else {
-      if (!userInput.ignoreErrors) {
-        throw new Error(`Unknown argument: ${arg}`);
-      }
+      // if (!userInput.ignoreErrors) {
+      //   throw new Error(`Unknown argument: ${arg}`);
+      // }
     }
   }
 

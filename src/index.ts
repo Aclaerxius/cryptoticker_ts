@@ -4,8 +4,9 @@ import { displayData } from "./displayManager";
 
 async function main() {
   //const binanceData = await requestManager();
-
-  console.table(displayData);
+  //
+  displayData();
+  // console.table(displayData);
 }
 
 main().catch(console.error);

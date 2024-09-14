@@ -55,10 +55,3 @@ export async function requestManager(): Promise<BinanceData[]> {
     throw error;
   }
 }
-
-async function main() {
-  const binanceData = await requestManager();
-  console.table(binanceData);
-}
-
-main().catch(console.error);

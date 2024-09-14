@@ -4,8 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsc src/index.ts",
-    "dev_with_flags": "tsx src/index.ts --sortBy price --sortBy volume,desc --limit 10 --pairs BTCUSDT ETHUSDT --ignoreErrors --live 10 --trend 6",
+    "dev": "tsx src/index.ts",
+    "dev_with_flags": "tsx src/index.ts --sort price --sort volume,desc --limit 10 --pairs BTCUSDT ETHUSDT --live 10 --trend 6",
     "lint": "eslint ./src/**/*",
     "lint:fix": "eslint ./src --fix",
     "format:all": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|jsx|tsx)\"",
@@ -29,11 +29,13 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "axios": "^1.7.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "lodash": "^4.17.21",
     "mongoose": "^8.6.1",
+    "tsc": "^2.0.4",
     "tty-table": "^4.2.3"
   },
   "devDependencies": {
@@ -45,7 +47,7 @@
     "globals": "^15.9.0",
     "prettier": "3.3.3",
     "tsx": "^4.19.0",
-    "typescript": "^5.5.4",
+    "typescript": "^5.6.2",
     "typescript-eslint": "^8.4.0"
   }
 }

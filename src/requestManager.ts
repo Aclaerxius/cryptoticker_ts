@@ -1,3 +1,5 @@
+import axios from "axios";
+
 export interface BinanceDataModel {
   symbol: string;
   priceChange: number;
@@ -31,34 +33,32 @@ export interface BinanceData {
   trend: string;
 }
 
-function convertToNumber(value: string | number): number {
-  if (typeof value === "string") {
-    return parseFloat(value) * 2;
-  }
-  return value * 2;
-}
-
-function convertBinanceData(data: BinanceDataModel[]): BinanceData[] {
+function convertToNumber(data: BinanceDataModel[]): BinanceData[] {
   return data.map((item) => ({
     symbol: item.symbol,
-    price: convertToNumber(item.lastPrice),
-    priceChange: convertToNumber(item.priceChange),
-    volume: convertToNumber(item.volume),
-    numberOfTrades: convertToNumber(item.count),
-    trend: convertToNumber(item.priceChange) > 0 ? "Up" : "Down",
+    price: parseFloat(item.lastPrice.toString()),
+    priceChange: parseFloat(item.priceChangePercent.toString()),
+    volume: parseFloat(item.quoteVolume.toString()),
+    numberOfTrades: parseInt(item.lastId.toString(), 10),
+    trend: parseFloat(item.priceChangePercent.toString()) > 0 ? "Up" : "Down",
   }));
 }
 
-export async function requestManager() {
-  const response = await fetch("https://api2.binance.com/api/v3/ticker/24hr");
-  const data = await response.json();
+const baseURL = "https://api2.binance.com";
 
-  return convertBinanceData(data);
+export async function requestManager(): Promise<BinanceData[]> {
+  try {
+    const response = await axios.get(`${baseURL}/api/v3/ticker/24hr`);
+    return convertToNumber(response.data);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    throw error;
+  }
 }
 
 async function main() {
-  const binanceData: BinanceData[] = await requestManager();
-  return binanceData;
+  const binanceData = await requestManager();
+  console.table(binanceData);
 }
 
 main().catch(console.error);

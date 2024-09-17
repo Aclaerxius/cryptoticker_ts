@@ -30,17 +30,17 @@ export interface BinanceData {
   priceChange: number;
   volume: number;
   numberOfTrades: number;
-  trend: string;
+  trend: number;
 }
 
 function convertToNumber(data: BinanceDataModel[]): BinanceData[] {
   return data.map((item) => ({
     symbol: item.symbol,
-    price: parseFloat(item.lastPrice.toString()),
-    priceChange: parseFloat(item.priceChangePercent.toString()),
-    volume: parseFloat(item.quoteVolume.toString()),
-    numberOfTrades: parseInt(item.lastId.toString(), 10),
-    trend: parseFloat(item.priceChangePercent.toString()) > 0 ? "Up" : "Down",
+    price: item.lastPrice,
+    priceChange: item.priceChangePercent,
+    volume: item.quoteVolume,
+    numberOfTrades: item.lastId,
+    trend: item.priceChangePercent,
   }));
 }
 

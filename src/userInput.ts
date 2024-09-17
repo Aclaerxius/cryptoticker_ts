@@ -12,69 +12,126 @@ export interface UserInput {
   trend?: number;
 }
 
-export function getUserInput(args: string[]): UserInput {
-  const userInput: UserInput = { sortBy: [] };
+export class UserInputParser {
+  userInput: UserInput;
+  argsUserInput: string[][];
 
-  for (let i = 2; i < args.length; i++) {
-    const arg = args[i];
+  constructor() {
+    this.userInput = {};
+    this.argsUserInput = [];
+  }
 
-    if (arg.startsWith("--sort")) {
-      // const order = arg.split(" ")[1];
-      // const [column, sortOrder] = order.split(",");
-      // if (!column || !["asc", "desc"].includes(sortOrder)) {
-      //   if (!userInput.ignoreErrors) {
-      //     throw new Error(`Invalid sort order: ${sortOrder}`);
-      //   }
-      // } else {
-      //   userInput.sortBy?.push({ column, order: sortOrder as "asc" | "desc" });
-      // }
-    } else if (arg === "--limit") {
-      i++;
-      const limit = parseInt(args[i], 10);
-      if (isNaN(limit) || limit <= 0 || limit > 100) {
-        if (!userInput.ignoreErrors) {
-          throw new Error(
-            "Limit must be a positive integer between 1 and 100.",
-          );
-        }
+  getUserInput(args: string[]): UserInput {
+    for (let i = 1; i < args.length; i++) {
+      const arg = args[i];
+      if (arg.length > 1 && (arg.startsWith("-") || arg.startsWith("--"))) {
+        this.argsUserInput.push([]);
+        this.argsUserInput[this.argsUserInput.length - 1].push(arg);
       } else {
-        userInput.limit = limit;
-      }
-    } else if (arg === "--pairs") {
-      i++;
-      userInput.pairs = [];
-      while (i < args.length && !args[i].startsWith("--")) {
-        userInput.pairs.push(args[i].toUpperCase());
-        i++;
-      }
-    } else if (arg === "--ignore-errors") {
-      userInput.ignoreErrors = true;
-    } else if (arg === "--live") {
-      i++;
-      const liveInterval = parseInt(args[i], 60);
-      if (isNaN(liveInterval) || liveInterval < 5 || liveInterval > 60) {
-        if (!userInput.ignoreErrors) {
-          throw new Error("Live interval must be a number between 5 and 60.");
+        if (this.argsUserInput.length > 0) {
+          this.argsUserInput[this.argsUserInput.length - 1].push(arg);
         }
-      } else {
-        userInput.live = liveInterval || 5;
       }
-    } else if (arg === "--trend") {
-      i++;
-      const trendSamples = parseInt(args[i], 20);
-      if (isNaN(trendSamples) || trendSamples <= 0 || trendSamples > 20) {
-        if (!userInput.ignoreErrors) {
-          throw new Error("Trend must be a number between 1 and 20.");
-        }
-      } else {
-        userInput.trend = trendSamples || 2;
+    }
+
+    this.processArgs();
+    console.log(this.argsUserInput);
+    return this.userInput;
+  }
+
+  processArgs() {
+    const sortArgs: string[] = [];
+    const seenFlags = new Set<string>();
+
+    for (const args of this.argsUserInput) {
+      const flag = args[0];
+      if (seenFlags.has(flag)) {
+        throw new Error(`Duplicate parameter: ${flag}`);
       }
-    } else {
-      // if (!userInput.ignoreErrors) {
-      //   throw new Error(`Unknown argument: ${arg}`);
-      // }
+      seenFlags.add(flag);
+
+      if (flag === "--sort") {
+        sortArgs.push(...args.slice(1));
+      } else if (flag === "--limit") {
+        this.handleLimit(args[1]);
+      } else if (flag === "--pairs") {
+        this.handlePairs(args.slice(1));
+      } else if (flag === "--ignore-errors") {
+        this.userInput.ignoreErrors = true;
+      } else if (flag === "--live") {
+        this.handleLive(args[1]);
+      } else if (flag === "--trend") {
+        this.handleTrend(args[1]);
+      } else {
+        throw new Error(`Invalid parameter: ${flag}`);
+      }
+    }
+
+    if (sortArgs.length > 0) {
+      this.handleSort(sortArgs);
+    }
+
+    if (this.userInput.pairs && this.userInput.limit) {
+      this.userInput.pairs = this.userInput.pairs.slice(
+        0,
+        this.userInput.limit
+      );
     }
   }
 
-  return userInput;
+  handleSort(sortArgs: string[]) {
+    const sortCriteria: SortArgs[] = [];
+    for (let i = 0; i < sortArgs.length; i += 2) {
+      const column = sortArgs[i];
+      const order = sortArgs[i + 1];
+
+      if (!column || (order !== "asc" && order !== "desc")) {
+        throw new Error(`Invalid sort parameter: ${column} ${order}`);
+      }
+
+      sortCriteria.push({ column, order });
+    }
+
+    this.userInput.sortBy = sortCriteria;
+  }
+
+  handleLimit(limitArg: string) {
+    const limit = parseInt(limitArg, 10);
+    if (isNaN(limit) || limit <= 0 || limit >= 10) {
+      throw new Error(
+        "Invalid limit value. Must be a positive integer between 1 and 10."
+      );
+    }
+    this.userInput.limit = limit;
+  }
+
+  handlePairs(pairArgs: string[]) {
+    if (pairArgs.length === 0) {
+      this.userInput.pairs = [];
+      return;
+    }
+
+    const filteredPairs = pairArgs.map((pair) => pair.toUpperCase());
+    this.userInput.pairs = filteredPairs;
+  }
+
+  handleLive(value: string) {
+    const live = parseInt(value, 10);
+    if (isNaN(live) || live < 5 || live > 60) {
+      throw new Error(
+        "Invalid live interval. Must be a positive integer between 5 and 60."
+      );
+    }
+    this.userInput.live = live;
+  }
+
+  handleTrend(trendArg: string) {
+    const trend = parseInt(trendArg, 10);
+    if (isNaN(trend) || (trend <= 1 && trend >= 20)) {
+      throw new Error(
+        "Invalid trend value. Must be a positive integer between 2 and 20."
+      );
+    }
+    this.userInput.trend = trend;
+  }
 }

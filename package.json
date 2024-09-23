@@ -5,7 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx src/index.ts",
-    "dev_with_flags": "tsx src/index.ts --sort symbol asc --limit 5 --pairs BTCUSDT ETHUSDT --live 10 --trend 6",
+    "dev_with_flags": "tsx src/index.ts --sort price asc --sort symbol asc --limit 5 --pairs BTCUSdt ETHU*DT --live 10 --trend 6",
     "lint": "eslint ./src/**/*",
     "lint:fix": "eslint ./src --fix",
     "format:all": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|jsx|tsx)\"",

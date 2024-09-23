@@ -35,7 +35,6 @@ export class UserInputParser {
     }
 
     this.processArgs();
-    console.log(this.argsUserInput);
     return this.userInput;
   }
 
@@ -45,7 +44,7 @@ export class UserInputParser {
 
     for (const args of this.argsUserInput) {
       const flag = args[0];
-      if (seenFlags.has(flag)) {
+      if (flag !== "--sort" && seenFlags.has(flag)) {
         throw new Error(`Duplicate parameter: ${flag}`);
       }
       seenFlags.add(flag);
@@ -127,7 +126,7 @@ export class UserInputParser {
 
   handleTrend(trendArg: string) {
     const trend = parseInt(trendArg, 10);
-    if (isNaN(trend) || (trend <= 1 && trend >= 20)) {
+    if (isNaN(trend) || trend <= 1 || trend >= 20) {
       throw new Error(
         "Invalid trend value. Must be a positive integer between 2 and 20."
       );
